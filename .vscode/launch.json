@@ -34,6 +34,31 @@
                 "--det_checkpoint", "weights_det/mobilenet0.25_Final.pth",
             ]
         },
+
+        {
+            "name": "fairdan",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--source", "webcam",
+
+                "--model_emotion", "DAN",
+                "--dataset", "RAFDB", // AffectNet7, AffectNet8, RAFDB
+                // "--checkpoint_emotion", "weights_emotion/affecnet7_epoch6_acc0.6569.pth",
+                // "--checkpoint_emotion", "weights_emotion/affecnet8_epoch5_acc0.6209.pth",
+                "--checkpoint_emotion", "weights_emotion/rafdb_epoch21_acc0.897_bacc0.8275.pth",
+
+                "--model_att", "FairFace",
+                "--checkpoint_att", "weights_att/res34_fairface.pth",
+
+                "--det_model", "RetinaFace",
+                "--det_checkpoint", "weights_det/mobilenet0.25_Final.pth",
+            ]
+        },
+
+
         {
             "name": "demo",
             "type": "debugpy",
