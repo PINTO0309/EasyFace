@@ -258,6 +258,4 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-weights_det/
-weights_emotion/
-weights_att/
+*.pth
