@@ -19,6 +19,7 @@
 *.avi
 *.data
 *.json
+!launch.json
 
 *.cfg
 !cfg/yolov3*.cfg
@@ -259,3 +260,4 @@ crashlytics-build.properties
 fabric.properties
 
 *.pth
+saved_model/

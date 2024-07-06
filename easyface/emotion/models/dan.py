@@ -100,7 +100,8 @@ class DAN(nn.Module):
         heads = torch.stack(heads).permute(1, 0, 2)
         heads = F.log_softmax(heads, dim=1)
         out = self.bn(self.fc(heads.sum(dim=1)))
-        return out, x, heads
+        # return out, x, heads
+        return out
 
 
 if __name__ == '__main__':
