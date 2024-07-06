@@ -58,7 +58,7 @@ class Inference:
                 f=onnx_file,
                 opset_version=13,
                 input_names=['input_rgb'],
-                output_names=['output'],
+                output_names=['emotion_id'],
             )
             model_onnx1 = onnx.load(onnx_file)
             model_onnx1 = onnx.shape_inference.infer_shapes(model_onnx1)
@@ -101,10 +101,10 @@ class Inference:
             f=onnx_file,
             opset_version=13,
             input_names=['input_rgb'],
-            output_names=['output'],
+            output_names=['emotion_id'],
             dynamic_axes={
                 'input_rgb' : {0: 'batch'},
-                'output' : {0: 'batch'},
+                'emotion_id' : {0: 'batch'},
             }
         )
         model_onnx1 = onnx.load(onnx_file)
