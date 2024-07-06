@@ -12,7 +12,19 @@ from easyface.attributes.models import *
 from easyface.utils.visualize import show_image
 from easyface.utils.io import WebcamStream, VideoReader, VideoWriter, FPS
 from detect_align import FaceDetectAlign
+import torch.nn as nn
 
+class ArgMaxModel(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def forward(self, x):
+        x = self.model(x)
+        race_logits = torch.argmax(x[..., 0:7], dim=1)
+        gender_logits = torch.argmax(x[..., 7:9], dim=1)
+        age_logits = torch.argmax(x[..., 9:18], dim=1)
+        return race_logits, gender_logits, age_logits
 
 class Inference:
     def __init__(self, model: str, checkpoint: str, det_model: str, det_checkpoint: str) -> None:
@@ -28,6 +40,8 @@ class Inference:
         self.model.cpu()
         self.model.eval()
 
+        self.argmax_model = ArgMaxModel(model=self.model)
+
         import onnx
         from onnxsim import simplify
         RESOLUTION = [
@@ -38,12 +52,12 @@ class Inference:
             onnx_file = f"{MODEL}_1x3x{H}x{W}.onnx"
             x = torch.randn(1, 3, H, W)
             torch.onnx.export(
-                self.model,
+                self.argmax_model,
                 args=(x),
                 f=onnx_file,
                 opset_version=13,
                 input_names=['input_rgb'],
-                output_names=['output'],
+                output_names=['race_id', 'gender_id', 'age_id'],
             )
             model_onnx1 = onnx.load(onnx_file)
             model_onnx1 = onnx.shape_inference.infer_shapes(model_onnx1)
@@ -81,20 +95,20 @@ class Inference:
             model_simp, check = simplify(model_onnx2)
             onnx.save(model_simp, onnx_file)
 
-
-
         onnx_file = f"{MODEL}_Nx3x{H}x{W}.onnx"
         x = torch.randn(1, 3, 224, 224)
         torch.onnx.export(
-            self.model,
+            self.argmax_model,
             args=(x),
             f=onnx_file,
             opset_version=13,
             input_names=['input_rgb'],
-            output_names=['output'],
+            output_names=['race_id', 'gender_id', 'age_id'],
             dynamic_axes={
                 'input_rgb' : {0: 'batch'},
-                'output' : {0: 'batch'},
+                'race_id' : {0: 'batch'},
+                'gender_id' : {0: 'batch'},
+                'age_id' : {0: 'batch'},
             }
         )
         model_onnx1 = onnx.load(onnx_file)
