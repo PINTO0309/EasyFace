@@ -63,13 +63,13 @@ class Inference:
             meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
             meta_data = model_onnx1.metadata_props.add()
             meta_data.key = "gender_labels"
-            meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+            meta_data.value = str(self.gender_labels)
             meta_data = model_onnx1.metadata_props.add()
             meta_data.key = "race_labels"
-            meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+            meta_data.value = str(self.race_labels)
             meta_data = model_onnx1.metadata_props.add()
             meta_data.key = "age_labels"
-            meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+            meta_data.value = str(self.age_labels)
             onnx.save(model_onnx1, onnx_file)
             model_onnx2 = onnx.load(onnx_file)
             model_simp, check = simplify(model_onnx2)
@@ -113,13 +113,13 @@ class Inference:
         meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
         meta_data = model_onnx1.metadata_props.add()
         meta_data.key = "gender_labels"
-        meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+        meta_data.value = str(self.gender_labels)
         meta_data = model_onnx1.metadata_props.add()
         meta_data.key = "race_labels"
-        meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+        meta_data.value = str(self.race_labels)
         meta_data = model_onnx1.metadata_props.add()
         meta_data.key = "age_labels"
-        meta_data.value = str(self.gender_labels + self.race_labels + self.age_labels)
+        meta_data.value = str(self.age_labels)
         onnx.save(model_onnx1, onnx_file)
         model_onnx2 = onnx.load(onnx_file)
         model_simp, check = simplify(model_onnx2)
