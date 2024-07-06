@@ -45,10 +45,10 @@
                 "--source", "webcam",
 
                 "--model_emotion", "DAN",
-                "--dataset", "RAFDB", // AffectNet7, AffectNet8, RAFDB
-                // "--checkpoint_emotion", "weights_emotion/affecnet7_epoch6_acc0.6569.pth",
+                "--dataset", "AffectNet7", // AffectNet7, AffectNet8, RAFDB
+                "--checkpoint_emotion", "weights_emotion/affecnet7_epoch6_acc0.6569.pth",
                 // "--checkpoint_emotion", "weights_emotion/affecnet8_epoch5_acc0.6209.pth",
-                "--checkpoint_emotion", "weights_emotion/rafdb_epoch21_acc0.897_bacc0.8275.pth",
+                // "--checkpoint_emotion", "weights_emotion/rafdb_epoch21_acc0.897_bacc0.8275.pth",
 
                 "--model_att", "FairFace",
                 "--checkpoint_att", "weights_att/res34_fairface.pth",
@@ -71,6 +71,19 @@
                 "--attribute_model", "attributes_fairface_Nx3x224x224.onnx",
                 "--video", "0",
             ]
+        },
+        {
+            "name": "demo_fairdan",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--detection_model", "yolov9_s_wholebody_with_wheelchair_post_0100_1x3x480x640.onnx",
+                "--attributes_model", "fairdan_affectnet8_Nx3x224x224.onnx",
+                "--video", "0",
+            ]
         }
+
     ]
 }

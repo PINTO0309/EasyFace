@@ -145,7 +145,6 @@ class Inference:
         meta_data = model_onnx1.metadata_props.add()
         meta_data.key = "std"
         meta_data.value = str([0.229, 0.224, 0.225])
-        meta_data = model_onnx1.metadata_props.add()
 
         meta_data = model_onnx1.metadata_props.add()
         meta_data.key = "gender_labels"
