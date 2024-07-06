@@ -121,6 +121,7 @@ class AbstractModel(ABC):
         self._model_path = model_path
         self._class_score_th = class_score_th
         self._providers = providers
+        self.onnx_graph = None
 
         # Model loading
         if self._runtime == 'onnx':
@@ -508,9 +509,12 @@ class DAN(AbstractModel):
             model_path=model_path,
             providers=providers,
         )
-        self._swap = (0,3,1,2)
+        if self._runtime == 'onnx':
+            self._swap = (0,3,1,2)
+        else:
+            self._swap = (0,1,2,3)
         self.meta_datas = {}
-        if self.onnx_graph.metadata_props is not None:
+        if self.onnx_graph is not None and self.onnx_graph.metadata_props is not None:
             meta_datas = {metadata_prop.key: metadata_prop.value for metadata_prop in self.onnx_graph.metadata_props}
         if meta_datas:
             self._channel_order: str = meta_datas.get('channel_order', 'rgb')
@@ -518,7 +522,7 @@ class DAN(AbstractModel):
             self._mean = self._mean.reshape([3,1,1])
             self._std: np.ndarray = np.asarray(ast.literal_eval(meta_datas.get('std', self._std)), dtype=np.float32)
             self._std = self._std.reshape([3,1,1])
-            self.labels: List[str] = ast.literal_eval(meta_datas.get('labels', []))
+            self.labels: List[str] = ast.literal_eval(meta_datas.get('labels', ['0','1','2','3','4','5','6','7','8']))
 
     def __call__(
         self,
@@ -559,10 +563,6 @@ class DAN(AbstractModel):
             Entire image
 
         swap: tuple
-            HWC to CHW: (2,0,1)
-            CHW to HWC: (1,2,0)
-            HWC to HWC: (0,1,2)
-            CHW to CHW: (0,1,2)
 
         Returns
         -------
@@ -876,52 +876,88 @@ def main():
         # Face only filter
         face_boxes = [box for box in boxes if box.classid == 3]
 
-        emotions = emotion_model(
-            images=[debug_image[face_box.y1:face_box.y2, face_box.x1: face_box.x2, :] for face_box in face_boxes],
-        )
+        if len(face_boxes) > 0:
+            emotions = emotion_model(
+                images=[debug_image[face_box.y1:face_box.y2, face_box.x1: face_box.x2, :] for face_box in face_boxes],
+            )
 
-        for box, emotion in zip(face_boxes, emotions):
-            classid: int = box.classid
-            color = (255,255,255)
-            if classid == 0:
-                # Body
-                color = (255,0,0)
-            elif classid == 1:
-                # Body-With-Wheelchair
-                color = (0,200,255)
-            elif classid == 2:
-                # Head
-                color = (0,0,255)
-            elif classid == 3:
-                # Face
-                color = (0,200,255)
-            elif classid == 4:
-                if not disable_left_and_right_hand_discrimination_mode:
-                    # Hands
-                    if box.handedness == 0:
-                        # Left-Hand
-                        color = (0,128,0)
-                    elif box.handedness == 1:
-                        # Right-Hand
-                        color = (255,0,255)
+            for box, emotion in zip(face_boxes, emotions):
+                classid: int = box.classid
+                color = (255,255,255)
+                if classid == 0:
+                    # Body
+                    color = (255,0,0)
+                elif classid == 1:
+                    # Body-With-Wheelchair
+                    color = (0,200,255)
+                elif classid == 2:
+                    # Head
+                    color = (0,0,255)
+                elif classid == 3:
+                    # Face
+                    color = (0,200,255)
+                elif classid == 4:
+                    if not disable_left_and_right_hand_discrimination_mode:
+                        # Hands
+                        if box.handedness == 0:
+                            # Left-Hand
+                            color = (0,128,0)
+                        elif box.handedness == 1:
+                            # Right-Hand
+                            color = (255,0,255)
+                        else:
+                            # Unknown
+                            color = (0,255,0)
                     else:
-                        # Unknown
+                        # Hands
                         color = (0,255,0)
-                else:
-                    # Hands
-                    color = (0,255,0)
-            elif classid == 7:
-                # Foot
-                color = (0,0,255)
+                elif classid == 7:
+                    # Foot
+                    color = (0,0,255)
 
-            if classid not in [1, 3]:
-                cv2.rectangle(debug_image, (box.x1, box.y1), (box.x2, box.y2), (255,255,255), 3)
-                cv2.rectangle(debug_image, (box.x1, box.y1), (box.x2, box.y2), color, 2)
-                if not disable_left_and_right_hand_discrimination_mode and classid == 4:
-                    handedness_txt = 'Left' if box.handedness == 0 else 'Right' if box.handedness == 1 else 'Unknown'
+                if classid not in [1, 3]:
+                    cv2.rectangle(debug_image, (box.x1, box.y1), (box.x2, box.y2), (255,255,255), 3)
+                    cv2.rectangle(debug_image, (box.x1, box.y1), (box.x2, box.y2), color, 2)
+                    if not disable_left_and_right_hand_discrimination_mode and classid == 4:
+                        handedness_txt = 'Left' if box.handedness == 0 else 'Right' if box.handedness == 1 else 'Unknown'
+                        cv2.putText(
+                            debug_image,
+                            f'{handedness_txt}',
+                            (
+                                box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
+                                box.y1-10 if box.y1-25 > 0 else 20
+                            ),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.7,
+                            (255, 255, 255),
+                            2,
+                            cv2.LINE_AA,
+                        )
+                        cv2.putText(
+                            debug_image,
+                            f'{handedness_txt}',
+                            (
+                                box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
+                                box.y1-10 if box.y1-25 > 0 else 20
+                            ),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.7,
+                            color,
+                            1,
+                            cv2.LINE_AA,
+                        )
+                else:
+                    draw_dashed_rectangle(
+                        image=debug_image,
+                        top_left=(box.x1, box.y1),
+                        bottom_right=(box.x2, box.y2),
+                        color=color,
+                        thickness=2,
+                        dash_length=10
+                    )
                     cv2.putText(
                         debug_image,
-                        f'{handedness_txt}',
+                        f'{emotion}',
                         (
                             box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
                             box.y1-10 if box.y1-25 > 0 else 20
@@ -934,52 +970,17 @@ def main():
                     )
                     cv2.putText(
                         debug_image,
-                        f'{handedness_txt}',
+                        f'{emotion}',
                         (
                             box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
                             box.y1-10 if box.y1-25 > 0 else 20
                         ),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.7,
-                        color,
+                        (0,0,255),
                         1,
                         cv2.LINE_AA,
                     )
-            else:
-                draw_dashed_rectangle(
-                    image=debug_image,
-                    top_left=(box.x1, box.y1),
-                    bottom_right=(box.x2, box.y2),
-                    color=color,
-                    thickness=2,
-                    dash_length=10
-                )
-                cv2.putText(
-                    debug_image,
-                    f'{emotion}',
-                    (
-                        box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
-                        box.y1-10 if box.y1-25 > 0 else 20
-                    ),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (255, 255, 255),
-                    2,
-                    cv2.LINE_AA,
-                )
-                cv2.putText(
-                    debug_image,
-                    f'{emotion}',
-                    (
-                        box.x1 if box.x1+50 < debug_image_w else debug_image_w-50,
-                        box.y1-10 if box.y1-25 > 0 else 20
-                    ),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (0,0,255),
-                    1,
-                    cv2.LINE_AA,
-                )
 
 
         if file_paths is not None:
