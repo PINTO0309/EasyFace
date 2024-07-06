@@ -61,8 +61,6 @@ class Box():
     y2: int
     cx: int
     cy: int
-    emotion_scores: np.ndarray = None # ['Neutral', 'Happy', 'Sad', 'Surprise', 'Fear', 'Disgust', 'Anger', 'Contempt']
-    attribute_scores: np.ndarray = None # ['Male', 'Female', 'White', 'Black', 'Latino Hispanic', 'East Asian', 'Southeast Asian', 'Indian', 'Middle Eastern', '0-2', '3-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70+']
     handedness: int = -1 # -1: Unknown, 0: Left, 1: Right
     is_hand_used: bool = False
 
