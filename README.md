@@ -1,5 +1,11 @@
 # EasyFace: Easy Face Analysis Tool with SOTA Models
 
+**This Fork is only intended to be converted to ONNX.**
+
+---
+---
+---
+
 ## Table of Contents
 * [Supported Models](#supported-models)
 * [Benchmarks & Pretrained Models](#benchmarks--pretrained-models)
@@ -87,9 +93,9 @@ $ python find_similarity.py \
 
 > Notes: The size of the testing images can be different.
 
-img1 | img2 | img3 
+img1 | img2 | img3
 --- | --- | ---
-![nc](./assets/test_faces/Nicolas%20Cage.jpg) | ![rdj1](./assets/img1.jpeg) | ![rdj](./assets/test_faces/Robert%20Downey%20Jr.jpeg) 
+![nc](./assets/test_faces/Nicolas%20Cage.jpg) | ![rdj1](./assets/img1.jpeg) | ![rdj](./assets/test_faces/Robert%20Downey%20Jr.jpeg)
 
 ```
 # similarity scores

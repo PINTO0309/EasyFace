@@ -257,3 +257,7 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+weights_det/
+weights_emotion/
+weights_att/
