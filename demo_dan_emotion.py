@@ -982,7 +982,6 @@ def main():
                         cv2.LINE_AA,
                     )
 
-
         if file_paths is not None:
             basename = os.path.basename(file_paths[file_paths_count])
             os.makedirs('output', exist_ok=True)
