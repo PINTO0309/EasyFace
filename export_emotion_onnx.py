@@ -8,12 +8,22 @@ from pathlib import Path
 from torchvision import transforms as T
 from typing import Union
 import ast
+import torch.nn as nn
 
 from easyface.emotion.models import *
 from easyface.utils.visualize import draw_box_and_landmark, show_image
 from easyface.utils.io import WebcamStream, VideoReader, VideoWriter, FPS
 from detect_align import FaceDetectAlign
 
+class ArgMaxModel(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def forward(self, x):
+        x = self.model(x)
+        x = torch.argmax(x, dim=1)
+        return x
 
 class Inference:
     def __init__(self, model: str, dataset: str, checkpoint: str, det_model: str, det_checkpoint: str) -> None:
@@ -31,6 +41,7 @@ class Inference:
         # self.model = self.model.to(self.device)
         self.model.cpu()
         self.model.eval()
+        self.argmax_model = ArgMaxModel(self.model)
 
         import onnx
         from onnxsim import simplify
@@ -42,7 +53,7 @@ class Inference:
             onnx_file = f"{MODEL}_1x3x{H}x{W}.onnx"
             x = torch.randn(1, 3, H, W)
             torch.onnx.export(
-                self.model,
+                self.argmax_model,
                 args=(x),
                 f=onnx_file,
                 opset_version=13,
@@ -85,7 +96,7 @@ class Inference:
         onnx_file = f"{MODEL}_Nx3x{H}x{W}.onnx"
         x = torch.randn(1, 3, 224, 224)
         torch.onnx.export(
-            self.model,
+            self.argmax_model,
             args=(x),
             f=onnx_file,
             opset_version=13,

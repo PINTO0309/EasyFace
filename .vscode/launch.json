@@ -33,6 +33,19 @@
                 "--det_model", "RetinaFace",
                 "--det_checkpoint", "weights_det/mobilenet0.25_Final.pth",
             ]
+        },
+        {
+            "name": "demo",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--detection_model", "yolov9_s_wholebody_with_wheelchair_post_0100_1x3x480x640.onnx",
+                "--emotion_model", "emotion_dan_affectnet8_Nx3x224x224.onnx",
+                "--attribute_model", "attributes_fairface_Nx3x224x224.onnx",
+                "--video", "0",
+            ]
         }
     ]
 }
