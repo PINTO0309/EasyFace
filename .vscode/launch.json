@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python デバッガー: 現在のファイル",
+            "name": "emotion",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
@@ -16,6 +16,20 @@
                 // "--checkpoint", "weights_emotion/affecnet8_epoch5_acc0.6209.pth",
                 // "--checkpoint", "weights_emotion/rafdb_epoch21_acc0.897_bacc0.8275.pth",
 
+                "--det_model", "RetinaFace",
+                "--det_checkpoint", "weights_det/mobilenet0.25_Final.pth",
+            ]
+        },
+        {
+            "name": "attributes",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--source", "webcam",
+                "--model", "FairFace",
+                "--checkpoint", "weights_att/res34_fairface.pth",
                 "--det_model", "RetinaFace",
                 "--det_checkpoint", "weights_det/mobilenet0.25_Final.pth",
             ]
