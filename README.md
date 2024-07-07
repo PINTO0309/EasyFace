@@ -33,8 +33,9 @@ options:
   -it {fp16,int8}, --inference_type {fp16,int8}
     Inference type. Default: fp16
   -dvw, --disable_video_writer
-    Disable video writer. Eliminates the file I/O load associated with automatic recording to MP4.
-    Devices that use a MicroSD card or similar for main storage can speed up overall processing.
+    Disable video writer. Eliminates the file I/O load associated with
+    automatic recording to MP4. Devices that use a MicroSD card or
+    similar for main storage can speed up overall processing.
   -dwk, --disable_waitKey
     Disable cv2.waitKey(). When you want to process a batch of still images,
     disable key-input wait and process them continuously.
