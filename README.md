@@ -2,6 +2,8 @@
 
 **This Fork is only intended to be converted to ONNX.**
 
+https://github.com/PINTO0309/PINTO_model_zoo/tree/main/453_FairDAN
+
 https://github.com/PINTO0309/EasyFace/assets/33194443/081dfc26-c4d9-461c-b17f-d992b19a39ac
 
 ```
